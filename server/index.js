@@ -5,6 +5,7 @@ const cors = require('cors');
 const createSchema = require('./db/schema');
 const authRoutes = require('./routes/auth');
 const groupsRouter = require('./routes/groups');
+const expensesRouter = require('./routes/expenses');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +26,9 @@ app.use('/api/auth', authRoutes);
 
 // Mount groups routes
 app.use('/api/groups', groupsRouter);
+
+// Mount expenses routes (handles /api/groups/:id/expenses and /api/expenses/:id)
+app.use('/api', expensesRouter);
 
 app.listen(PORT, () => {
     console.log(`SplitSmart server running on port ${PORT}`);

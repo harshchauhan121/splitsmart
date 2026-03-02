@@ -4,6 +4,7 @@ const router = express.Router();
 console.log("GROUPS ROUTER LOADED");
 const db = require('../db/connection');
 const authMiddleware = require('../middleware/auth');
+const calculateBalances = require('../utils/calculateBalances');
 
 // Protect all routes
 router.use(authMiddleware);
@@ -247,6 +248,37 @@ router.post('/:id/members', (req, res) => {
             success: false,
             error: "Failed to add member"
         });
+    }
+});
+
+// GET /api/groups/:id/balances
+router.get('/:id/balances', (req, res) => {
+    const groupId = req.params.id;
+
+    try {
+        const group = db.prepare('SELECT id FROM groups WHERE id = ?').get(groupId);
+        if (!group) {
+            return res.status(404).json({ success: false, error: 'Group not found' });
+        }
+
+        const membership = db.prepare(
+            'SELECT id FROM group_members WHERE group_id = ? AND user_id = ?'
+        ).get(groupId, req.user.id);
+
+        if (!membership) {
+            return res.status(403).json({ success: false, error: 'Access denied' });
+        }
+
+        const { balances, transactions } = calculateBalances(groupId, db);
+
+        return res.json({
+            success: true,
+            data: { balances, transactions }
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, error: 'Failed to calculate balances' });
     }
 });
 
