@@ -1,0 +1,173 @@
+# SplitSmart Design System
+
+> Extracted from UI screenshots. All tokens live in [tailwind.config.js](file:///d:/STUDY/SplitSmart/client/tailwind.config.js) and reusable classes in [index.css](file:///d:/STUDY/SplitSmart/client/src/index.css) `@layer components`.
+
+---
+
+## 1. Colors
+
+| Token              | Value                          | Usage                   |
+|--------------------|--------------------------------|-------------------------|
+| `--bg-base`        | `#0a0f0d`                      | Page background         |
+| `--bg-surface`     | `#111a15`                      | Modals, sidebar         |
+| `--bg-card`        | `#141f18`                      | Cards, panels           |
+| `--bg-card-hover`  | `#192a1f`                      | Hovered cards           |
+| `--bg-input`       | `#1a2b20`                      | Form inputs             |
+| `--accent-green`   | `#00ff88`                      | Primary CTA, success    |
+| `--accent-coral`   | `#ff6b6b`                      | Danger, "you owe"       |
+| `--accent-purple`  | `#7c5cff`                      | Category badges         |
+| `--text-primary`   | `#ffffff`                      | Headings, body          |
+| `--text-muted`     | `#7a9485`                      | Secondary text          |
+| `--text-dim`       | `#4a6355`                      | Disabled/placeholder    |
+| `--border-subtle`  | `rgba(255,255,255,0.06)`       | Dividers, input border  |
+| `--border-card`    | `rgba(255,255,255,0.07)`       | Card border             |
+| `--border-hover`   | `rgba(255,255,255,0.12)`       | Card hover border       |
+
+---
+
+## 2. Typography
+
+| Style     | Font      | Size  | Weight | Tracking | Usage                 |
+|-----------|-----------|-------|--------|----------|-----------------------|
+| Display   | Syne      | 48px  | 800    | —        | Hero text, big totals |
+| H1        | Syne      | 32px  | 700    | —        | Page titles           |
+| H2        | Syne      | 24px  | 700    | —        | Section headings      |
+| H3        | Syne      | 20px  | 700    | —        | Modal titles          |
+| H4        | Syne      | 18px  | 700    | —        | Card titles           |
+| Body      | DM Sans   | 14px  | 400    | —        | Paragraph text        |
+| Small     | DM Sans   | 13px  | 400    | —        | Descriptions          |
+| XS        | DM Sans   | 12px  | 400    | —        | Metadata, counts      |
+| Label     | DM Sans   | 11px  | 500    | 0.12em   | Section labels        |
+| Micro     | DM Sans   | 10px  | 400    | 0.1em    | Table headers, badges |
+
+---
+
+## 3. Component Classes
+
+### Cards
+```html
+<!-- Interactive card (hover lift) -->
+<div class="card">...</div>
+
+<!-- Static panel (no hover) -->
+<div class="card-flat">...</div>
+
+<!-- Dashboard summary banner -->
+<div class="card-summary">...</div>
+```
+
+### Buttons
+```html
+<!-- Primary (green glow) -->
+<button class="btn-primary">+ New Expense</button>
+
+<!-- Secondary (outline) -->
+<button class="btn-secondary">Settle Up</button>
+
+<!-- Danger (coral outline → filled on hover) -->
+<button class="btn-danger">Delete Group</button>
+
+<!-- Ghost (subtle border) -->
+<button class="btn-ghost">+ Add Member</button>
+```
+
+### Inputs
+```html
+<input class="input" placeholder="Description" />
+<!-- Focus: green border + glow ring -->
+```
+
+### Modals
+```html
+<div class="modal-overlay">
+  <div class="modal-content">
+    <h2 class="modal-title">Add Expense</h2>
+    <!-- content -->
+  </div>
+</div>
+```
+
+### Sidebar
+```html
+<aside class="sidebar">
+  <a class="sidebar-link-active">Home</a>
+  <a class="sidebar-link">Groups</a>
+</aside>
+```
+
+### Navbar
+```html
+<nav class="navbar">...</nav>
+```
+
+### Table Rows
+```html
+<div class="table-row">...</div>
+```
+
+### Badges
+```html
+<span class="badge badge-active">ACTIVE</span>
+<span class="badge badge-settled">SETTLED</span>
+```
+
+### Toasts
+```html
+<div class="toast toast-success">Expense added!</div>
+<div class="toast toast-error">Failed to load</div>
+```
+
+### Labels
+```html
+<p class="label">Total Spent</p>
+```
+
+---
+
+## 4. Spacing
+
+| Context            | Value    | Tailwind       |
+|--------------------|----------|----------------|
+| Page padding X     | 24px     | `px-6`         |
+| Page padding Y     | 40px     | `py-10`        |
+| Card padding       | 24px     | `p-6`          |
+| Card padding (lg)  | 28px     | `p-7`          |
+| Modal padding      | 32px     | `p-8`          |
+| Grid gap (cards)   | 20px     | `gap-5`        |
+| Section gap        | 32px     | `gap-8`        |
+| Max content width  | 1100px   | `max-w-[1100px]` |
+
+---
+
+## 5. Shadows
+
+| Name              | Value                                    | Usage             |
+|-------------------|------------------------------------------|-------------------|
+| `shadow-glow`     | `0 0 20px rgba(0,255,136,0.25)`          | Primary buttons   |
+| `shadow-glow-strong` | `0 0 30px rgba(0,255,136,0.45)`       | Button hover      |
+| `shadow-card-hover`  | `0 8px 32px rgba(0,0,0,0.4)`          | Card lift         |
+| `shadow-modal`    | `0 24px 80px rgba(0,0,0,0.6)`           | Modal backdrop    |
+| `shadow-summary`  | `0 10px 40px -10px rgba(0,0,0,0.5)`     | Summary banner    |
+
+---
+
+## 6. Animations
+
+| Class         | Keyframes       | Duration | Usage          |
+|---------------|-----------------|----------|----------------|
+| `.page-enter` | `pageEnter`     | 300ms    | Page transitions |
+| (modal)       | `modalSlideUp`  | 250ms    | Modal open     |
+| `.toast`      | `toastIn`       | 300ms    | Toast slide-in |
+
+---
+
+## 7. Border Radii
+
+| Element  | Radius  |
+|----------|---------|
+| Cards    | 18px    |
+| Modals   | 20px    |
+| Buttons  | 12px    |
+| Inputs   | 12px    |
+| Logo     | 10px    |
+| Avatars  | 9999px  |

@@ -24,15 +24,9 @@ export default function DashboardPage() {
 
     useEffect(() => { document.title = 'Dashboard — SplitSmart'; }, []);
 
-    const inputStyle = {
-        background: 'var(--bg-input)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 12,
-        height: 48,
-        color: 'white',
-        paddingLeft: 16,
-        outline: 'none',
-        transition: 'border-color 0.15s, box-shadow 0.15s',
+    const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3000);
     };
 
     const fetchAll = useCallback(async () => {
@@ -47,8 +41,9 @@ export default function DashboardPage() {
                 let owed = 0;
                 let owedToMe = 0;
 
-                const balancePromises = groupsData.map(g => getBalances(g.id));
-                const balanceResults = await Promise.all(balancePromises);
+                const balanceResults = await Promise.all(
+                    groupsData.map(g => getBalances(g.id))
+                );
 
                 balanceResults.forEach(r => {
                     const bMap = r.data.data.balances || {};
@@ -60,26 +55,12 @@ export default function DashboardPage() {
                 setSummary({ totalOwed: owed, totalOwedToMe: owedToMe });
                 setSummaryLoading(false);
             }
-        } catch (err) {
+        } catch {
             showToast('Failed to load dashboard data', 'error');
         } finally { setLoading(false); }
     }, [user]);
 
     useEffect(() => { fetchAll(); }, [fetchAll]);
-
-    const showToast = (msg, type = 'success') => {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 3000);
-    };
-
-    const btnPrimary = {
-        background: 'var(--accent-green)',
-        color: '#0a0f0d',
-        fontFamily: 'Syne, sans-serif',
-        fontWeight: 700,
-        borderRadius: 12,
-        boxShadow: 'var(--shadow-green)',
-    };
 
     const handleCreate = async () => {
         if (!groupName.trim()) { setError('Group name is required'); return; }
@@ -95,7 +76,7 @@ export default function DashboardPage() {
         } finally { setCreating(false); }
     };
 
-    const inputCls = 'w-full text-sm placeholder:text-[var(--text-muted)]';
+    const net = summary.totalOwedToMe - summary.totalOwed;
 
     return (
         <div className="page-enter min-h-screen">
@@ -104,11 +85,13 @@ export default function DashboardPage() {
             <main className="max-w-[1100px] mx-auto px-6 py-10">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="font-[Syne] font-bold text-[32px] text-white">Your Groups</h1>
+                    <div>
+                        <h1 className="font-heading font-bold text-[32px] text-white">Dashboard</h1>
+                        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Overview of your expenses and balances</p>
+                    </div>
                     <button
                         onClick={() => setModalOpen(true)}
-                        className="px-5 py-2.5 text-sm cursor-pointer hover:scale-[1.02] transition-transform"
-                        style={btnPrimary}
+                        className="btn-primary"
                         disabled={creating}
                     >
                         + New Group
@@ -117,31 +100,38 @@ export default function DashboardPage() {
 
                 {/* Summary Card */}
                 {!loading && groups.length > 0 && (
-                    <div
-                        className="mb-8 p-6 rounded-[24px] flex flex-col md:flex-row gap-8 items-center justify-around overflow-hidden relative"
-                        style={{
-                            background: 'var(--bg-card)',
-                            border: '1px solid var(--border-card)',
-                            boxShadow: '0 10px 40px -10px rgba(0,0,0,0.5)'
-                        }}
-                    >
+                    <div className="card-summary mb-8">
                         <div className="flex-1 text-center">
-                            <p className="uppercase mb-1" style={{ fontSize: 11, letterSpacing: '0.12em', color: 'var(--text-muted)' }}>You are owed</p>
-                            <h2 className="font-[Syne] font-bold text-3xl" style={{ color: 'var(--accent-green)' }}>
+                            <p className="label mb-1">You are owed</p>
+                            <h2 className="font-heading font-bold text-3xl" style={{ color: 'var(--accent-green)' }}>
                                 {summaryLoading ? '...' : fmtCurrency(summary.totalOwedToMe)}
                             </h2>
                         </div>
-                        <div className="w-[1px] h-12 bg-[var(--border-subtle)] hidden md:block" />
+                        <div className="w-[1px] h-12 hidden md:block" style={{ background: 'var(--border-subtle)' }} />
                         <div className="flex-1 text-center">
-                            <p className="uppercase mb-1" style={{ fontSize: 11, letterSpacing: '0.12em', color: 'var(--text-muted)' }}>You owe</p>
-                            <h2 className="font-[Syne] font-bold text-3xl" style={{ color: 'var(--accent-coral)' }}>
+                            <p className="label mb-1">You owe</p>
+                            <h2 className="font-heading font-bold text-3xl" style={{ color: 'var(--accent-coral)' }}>
                                 {summaryLoading ? '...' : fmtCurrency(summary.totalOwed)}
+                            </h2>
+                        </div>
+                        <div className="w-[1px] h-12 hidden md:block" style={{ background: 'var(--border-subtle)' }} />
+                        <div className="flex-1 text-center">
+                            <p className="label mb-1">Net balance</p>
+                            <h2
+                                className="font-heading font-bold text-3xl"
+                                style={{ color: net >= 0 ? 'var(--accent-green)' : 'var(--accent-coral)' }}
+                            >
+                                {summaryLoading ? '...' : (net >= 0 ? '+' : '-') + fmtCurrency(Math.abs(net))}
                             </h2>
                         </div>
                     </div>
                 )}
 
-                {/* Content */}
+                {/* Group List */}
+                <div className="flex items-center justify-between mb-5">
+                    <h2 className="font-heading font-bold text-xl text-white">Your Groups</h2>
+                </div>
+
                 {loading ? (
                     <div className="py-20"><LoadingSpinner size="lg" /></div>
                 ) : groups.length === 0 ? (
@@ -161,48 +151,44 @@ export default function DashboardPage() {
                 )}
             </main>
 
+            {/* Create Group Modal */}
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create New Group">
                 <div className="flex flex-col gap-4">
-                    <input
-                        type="text"
-                        placeholder="Group Name"
-                        value={groupName}
-                        onChange={(e) => setGroupName(e.target.value)}
-                        className={inputCls}
-                        style={inputStyle}
-                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,255,136,0.1)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none'; }}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Description (optional)"
-                        value={groupDesc}
-                        onChange={(e) => setGroupDesc(e.target.value)}
-                        className={inputCls}
-                        style={inputStyle}
-                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,255,136,0.1)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none'; }}
-                    />
+                    <div>
+                        <p className="label mb-2">Group Name</p>
+                        <input
+                            type="text"
+                            placeholder="Weekend Trip"
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                            className="input"
+                        />
+                    </div>
+                    <div>
+                        <p className="label mb-2">Description (optional)</p>
+                        <input
+                            type="text"
+                            placeholder="A short description"
+                            value={groupDesc}
+                            onChange={(e) => setGroupDesc(e.target.value)}
+                            className="input"
+                        />
+                    </div>
                     {error && <p className="text-sm" style={{ color: 'var(--accent-coral)' }}>{error}</p>}
                     <button
                         onClick={handleCreate}
                         disabled={creating}
-                        className="w-full h-12 flex items-center justify-center cursor-pointer hover:scale-[1.02] transition-transform disabled:opacity-50"
-                        style={btnPrimary}
+                        className="btn-primary w-full"
+                        style={{ height: 48 }}
                     >
                         {creating ? <LoadingSpinner size="sm" /> : 'Create Group'}
                     </button>
                 </div>
             </Modal>
 
+            {/* Toast */}
             {toast && (
-                <div
-                    className="fixed bottom-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-[Syne] font-bold shadow-xl toast-enter"
-                    style={{
-                        backgroundColor: toast.type === 'error' ? 'var(--accent-coral)' : 'var(--accent-green)',
-                        color: '#0a0f0d',
-                    }}
-                >
+                <div className={`toast ${toast.type === 'error' ? 'toast-error' : 'toast-success'}`}>
                     {toast.msg}
                 </div>
             )}

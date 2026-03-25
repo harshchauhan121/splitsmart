@@ -7,16 +7,15 @@ function fmtCurrency(n) {
 
 export default function BalanceCard({ transaction }) {
     const { user } = useAuth();
-    const isOwed = transaction.to.id === user?.id;   // current user is owed
-    const isOwing = transaction.from.id === user?.id; // current user owes
-    const isInvolved = isOwed || isOwing;
+    const isOwed = transaction.to.id === user?.id;
+    const isOwing = transaction.from.id === user?.id;
 
     return (
         <div
-            className="flex items-center gap-3 px-4 py-3 rounded-[10px] mb-2 last:mb-0"
+            className="flex items-center gap-4 px-5 py-4 rounded-[14px] mb-2 last:mb-0"
             style={{
                 background: 'rgba(255,255,255,0.03)',
-                border: `1px solid rgba(255,255,255,0.05)`,
+                border: '1px solid rgba(255,255,255,0.05)',
                 borderLeft: isOwing
                     ? '3px solid var(--accent-coral)'
                     : isOwed
@@ -24,20 +23,32 @@ export default function BalanceCard({ transaction }) {
                         : '1px solid rgba(255,255,255,0.05)',
             }}
         >
-            <Avatar name={transaction.from.name} size="sm" />
-            <span style={{ color: 'var(--text-muted)', fontSize: 16 }}>→</span>
-            <Avatar name={transaction.to.name} size="sm" />
-            <div className="flex-1 min-w-0 ml-1">
+            {/* Avatars with arrow */}
+            <div className="flex items-center gap-2 shrink-0">
+                <Avatar name={transaction.from.name} size="sm" />
+                <span style={{ color: 'var(--text-dim)', fontSize: 14 }}>→</span>
+                <Avatar name={transaction.to.name} size="sm" />
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
                 <p className="text-sm text-white truncate">
-                    {transaction.from.name} owes {transaction.to.name}
-                </p>
-                <p
-                    className="font-[Syne] font-bold mt-0.5"
-                    style={{ fontSize: 14, color: isOwing ? 'var(--accent-coral)' : 'var(--accent-green)' }}
-                >
-                    {fmtCurrency(transaction.amount)}
+                    <strong className="font-medium">{transaction.from.name}</strong>
+                    <span style={{ color: 'var(--text-muted)' }}> owes </span>
+                    <strong className="font-medium">{transaction.to.name}</strong>
                 </p>
             </div>
+
+            {/* Amount */}
+            <p
+                className="font-heading font-bold shrink-0"
+                style={{
+                    fontSize: 16,
+                    color: isOwing ? 'var(--accent-coral)' : 'var(--accent-green)',
+                }}
+            >
+                {fmtCurrency(transaction.amount)}
+            </p>
         </div>
     );
 }

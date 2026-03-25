@@ -12,7 +12,6 @@ import BalanceCard from '../components/BalanceCard';
 import Modal from '../components/Modal';
 
 function fmtCurrency(n) { return '$' + Number(n || 0).toFixed(2); }
-function fmtDate(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
 
 export default function GroupPage() {
     const { id } = useParams();
@@ -40,8 +39,8 @@ export default function GroupPage() {
     const [expDesc, setExpDesc] = useState('');
     const [expAmount, setExpAmount] = useState('');
     const [expPayer, setExpPayer] = useState('');
-    const [expSplitType, setExpSplitType] = useState('equal'); // 'equal' or 'custom'
-    const [expCustomSplits, setExpCustomSplits] = useState({}); // { userId: amount }
+    const [expSplitType, setExpSplitType] = useState('equal');
+    const [expCustomSplits, setExpCustomSplits] = useState({});
     const [expSubmitting, setExpSubmitting] = useState(false);
     const [expError, setExpError] = useState(null);
 
@@ -80,7 +79,6 @@ export default function GroupPage() {
         if (group) document.title = `${group.name} — SplitSmart`;
     }, [group]);
 
-    // Set default payer once group loads
     useEffect(() => {
         if (group && user && !expPayer) setExpPayer(String(user.id));
     }, [group, user, expPayer]);
@@ -230,26 +228,6 @@ export default function GroupPage() {
         }
     };
 
-    const inputCls = 'w-full text-sm placeholder:text-[var(--text-muted)]';
-    const inputStyle = {
-        background: 'var(--bg-input)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 12,
-        height: 48,
-        color: 'white',
-        paddingLeft: 16,
-        outline: 'none',
-        transition: 'border-color 0.15s, box-shadow 0.15s',
-    };
-    const btnPrimary = {
-        background: 'var(--accent-green)',
-        color: '#0a0f0d',
-        fontFamily: 'Syne, sans-serif',
-        fontWeight: 700,
-        borderRadius: 12,
-        boxShadow: 'var(--shadow-green)',
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen">
@@ -276,21 +254,21 @@ export default function GroupPage() {
             <Navbar />
 
             <main className="max-w-[1100px] mx-auto px-6 py-10">
-                {/* Header */}
-                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 pb-6" style={{ borderBottom: '1px solid var(--border-subtle)', marginBottom: 32 }}>
+                {/* ── Header ── */}
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 pb-6 mb-8" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                     <div>
-                        <h1 className="font-[Syne] text-white" style={{ fontWeight: 800, fontSize: 48, lineHeight: 1.1 }}>{group.name}</h1>
+                        <h1 className="font-heading text-white" style={{ fontWeight: 800, fontSize: 48, lineHeight: 1.1 }}>{group.name}</h1>
                         {group.description && (
-                            <p className="text-[var(--text-muted)] text-sm mt-2">{group.description}</p>
+                            <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{group.description}</p>
                         )}
                     </div>
                     <div className="text-right shrink-0">
-                        <p className="uppercase" style={{ fontSize: 11, letterSpacing: '0.12em', color: 'var(--text-muted)' }}>Total Spent</p>
-                        <p className="font-[Syne] text-white" style={{ fontWeight: 800, fontSize: 48, lineHeight: 1.1 }}>{fmtCurrency(totalSpent)}</p>
+                        <p className="label">Total Spent</p>
+                        <p className="font-heading text-white" style={{ fontWeight: 800, fontSize: 48, lineHeight: 1.1 }}>{fmtCurrency(totalSpent)}</p>
                     </div>
                 </div>
 
-                {/* Members row */}
+                {/* ── Members Row ── */}
                 <div className="flex items-center mt-5 gap-2">
                     <div className="flex items-center">
                         {members.map((m, i) => (
@@ -299,46 +277,31 @@ export default function GroupPage() {
                             </div>
                         ))}
                     </div>
-                    <span className="text-sm text-[var(--text-muted)] ml-2">
+                    <span className="text-sm ml-2" style={{ color: 'var(--text-muted)' }}>
                         {members.length} member{members.length !== 1 ? 's' : ''}
                     </span>
-                    <button
-                        onClick={() => setAddMemberOpen(true)}
-                        className="ml-3 px-3 py-1.5 text-xs cursor-pointer transition-colors hover:text-white"
-                        style={{ color: 'var(--text-muted)', border: '1px solid var(--border-subtle)', borderRadius: 8 }}
-                    >
+                    <button onClick={() => setAddMemberOpen(true)} className="btn-ghost ml-3">
                         + Add Member
                     </button>
                 </div>
 
-                {/* Two column layout */}
+                {/* ── Two Column Layout ── */}
                 <div className="flex flex-col lg:flex-row gap-8 mt-8">
-                    {/* Left col — Expenses */}
+                    {/* Left — Expenses */}
                     <div className="flex-[2]">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-[Syne] font-bold text-xl text-white">Expenses</h2>
+                            <h2 className="font-heading font-bold text-xl text-white">Expenses</h2>
                             <div className="flex gap-3">
-                                <button
-                                    onClick={() => setSettleOpen(true)}
-                                    className="px-4 py-2 text-sm cursor-pointer hover:scale-[1.02] transition-transform bg-transparent font-bold"
-                                    style={{ border: '1px solid var(--accent-green)', color: 'var(--accent-green)', borderRadius: 12 }}
-                                >
+                                <button onClick={() => setSettleOpen(true)} className="btn-secondary">
                                     Settle Up
                                 </button>
-                                <button
-                                    onClick={() => { setEditMode(false); setAddExpenseOpen(true); }}
-                                    className="px-4 py-2 text-sm cursor-pointer hover:scale-[1.02] transition-transform"
-                                    style={btnPrimary}
-                                >
+                                <button onClick={() => { setEditMode(false); setAddExpenseOpen(true); }} className="btn-primary">
                                     + Add Expense
                                 </button>
                             </div>
                         </div>
 
-                        <div
-                            className="rounded-[18px] p-7"
-                            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)' }}
-                        >
+                        <div className="card-flat">
                             {expenses.length === 0 ? (
                                 <EmptyState icon="💸" title="No expenses yet" message="Add the first expense for this group" />
                             ) : (
@@ -355,32 +318,23 @@ export default function GroupPage() {
                         </div>
 
                         {/* Group Controls */}
-                        <div className="mt-8 pt-6 border-t border-[var(--border-subtle)] flex flex-col gap-3">
-                            <button
-                                onClick={handleLeaveGroup}
-                                className="w-full py-3 text-sm font-bold text-[var(--text-muted)] hover:text-white transition-colors cursor-pointer border border-[var(--border-subtle)] rounded-xl"
-                            >
+                        <div className="mt-8 pt-6 flex flex-col gap-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                            <button onClick={handleLeaveGroup} className="btn-ghost w-full py-3">
                                 Leave Group
                             </button>
                             {group?.created_by === user?.id && (
-                                <button
-                                    onClick={handleDeleteGroup}
-                                    className="w-full py-3 text-sm font-bold text-[var(--accent-coral)] hover:bg-[var(--accent-coral)] hover:text-white transition-all cursor-pointer border border-[var(--accent-coral)] rounded-xl opacity-80 hover:opacity-100"
-                                >
+                                <button onClick={handleDeleteGroup} className="btn-danger w-full py-3">
                                     Delete Group
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    {/* Right col — Balances */}
+                    {/* Right — Balances */}
                     <div className="flex-[1]">
-                        <h2 className="font-[Syne] font-bold text-xl text-white mb-4">Balances</h2>
+                        <h2 className="font-heading font-bold text-xl text-white mb-4">Balances</h2>
                         {transactions.length === 0 ? (
-                            <div
-                                className="rounded-[18px] p-5"
-                                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-card)' }}
-                            >
+                            <div className="card-flat">
                                 <EmptyState icon="✅" title="All settled up!" />
                             </div>
                         ) : (
@@ -392,42 +346,47 @@ export default function GroupPage() {
                 </div>
             </main>
 
-            {/* Add/Edit Expense Modal */}
+            {/* ══════ Add/Edit Expense Modal ══════ */}
             <Modal isOpen={addExpenseOpen} onClose={() => { setAddExpenseOpen(false); setEditMode(false); }} title={editMode ? 'Edit Expense' : 'Add Expense'}>
                 <div className="flex flex-col gap-4">
-                    <input
-                        type="text"
-                        placeholder="Description"
-                        value={expDesc}
-                        onChange={(e) => setExpDesc(e.target.value)}
-                        className={inputCls}
-                        style={inputStyle}
-                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,255,136,0.1)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none'; }}
-                    />
-                    <input
-                        type="number"
-                        step="0.01"
-                        placeholder="Amount"
-                        value={expAmount}
-                        onChange={(e) => setExpAmount(e.target.value)}
-                        className={inputCls}
-                        style={inputStyle}
-                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,255,136,0.1)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none'; }}
-                    />
-                    <select
-                        value={expPayer}
-                        onChange={(e) => setExpPayer(e.target.value)}
-                        className={inputCls}
-                        style={{ ...inputStyle, paddingRight: 16 }}
-                    >
-                        <option value="" disabled>Who paid?</option>
-                        {members.map((m) => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
-                        ))}
-                    </select>
-                    <div className="flex bg-[var(--bg-input)] rounded-xl p-1 gap-1">
+                    <div>
+                        <p className="label mb-2">Description</p>
+                        <input
+                            type="text"
+                            placeholder="e.g. Dinner at Mario's"
+                            value={expDesc}
+                            onChange={(e) => setExpDesc(e.target.value)}
+                            className="input"
+                        />
+                    </div>
+                    <div>
+                        <p className="label mb-2">Amount</p>
+                        <input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={expAmount}
+                            onChange={(e) => setExpAmount(e.target.value)}
+                            className="input"
+                        />
+                    </div>
+                    <div>
+                        <p className="label mb-2">Who paid?</p>
+                        <select
+                            value={expPayer}
+                            onChange={(e) => setExpPayer(e.target.value)}
+                            className="input"
+                            style={{ paddingRight: 16 }}
+                        >
+                            <option value="" disabled>Select payer</option>
+                            {members.map((m) => (
+                                <option key={m.id} value={m.id}>{m.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Split Toggle */}
+                    <div className="flex rounded-xl p-1 gap-1" style={{ background: 'var(--bg-input)' }}>
                         <button
                             type="button"
                             onClick={() => setExpSplitType('equal')}
@@ -452,9 +411,10 @@ export default function GroupPage() {
                         </button>
                     </div>
 
+                    {/* Custom Splits */}
                     {expSplitType === 'custom' && (
                         <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
-                            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Enter amounts for each member</p>
+                            <p className="label mb-1">Enter amounts for each member</p>
                             {members.map(m => (
                                 <div key={m.id} className="flex items-center gap-2">
                                     <Avatar name={m.name} size="sm" />
@@ -477,85 +437,82 @@ export default function GroupPage() {
                     <button
                         onClick={handleAddExpense}
                         disabled={expSubmitting}
-                        className="w-full h-12 flex items-center justify-center cursor-pointer hover:scale-[1.02] transition-transform disabled:opacity-50"
-                        style={btnPrimary}
+                        className="btn-primary w-full"
+                        style={{ height: 48 }}
                     >
                         {expSubmitting ? <LoadingSpinner size="sm" /> : (editMode ? 'Update Expense' : 'Add Expense')}
                     </button>
                 </div>
             </Modal>
 
-            {/* Add Member Modal */}
+            {/* ══════ Add Member Modal ══════ */}
             <Modal isOpen={addMemberOpen} onClose={() => setAddMemberOpen(false)} title="Add Member">
                 <div className="flex flex-col gap-4">
-                    <input
-                        type="email"
-                        placeholder="Member's email"
-                        value={memEmail}
-                        onChange={(e) => setMemEmail(e.target.value)}
-                        className={inputCls}
-                        style={inputStyle}
-                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,255,136,0.1)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none'; }}
-                    />
+                    <div>
+                        <p className="label mb-2">Email Address</p>
+                        <input
+                            type="email"
+                            placeholder="member@example.com"
+                            value={memEmail}
+                            onChange={(e) => setMemEmail(e.target.value)}
+                            className="input"
+                        />
+                    </div>
                     {memError && <p className="text-sm" style={{ color: 'var(--accent-coral)' }}>{memError}</p>}
                     <button
                         onClick={handleAddMember}
                         disabled={memSubmitting}
-                        className="w-full h-12 flex items-center justify-center cursor-pointer hover:scale-[1.02] transition-transform disabled:opacity-50"
-                        style={btnPrimary}
+                        className="btn-primary w-full"
+                        style={{ height: 48 }}
                     >
                         {memSubmitting ? <LoadingSpinner size="sm" /> : 'Add Member'}
                     </button>
                 </div>
             </Modal>
 
-            {/* Settle Up Modal */}
+            {/* ══════ Settle Up Modal ══════ */}
             <Modal isOpen={settleOpen} onClose={() => setSettleOpen(false)} title="Settle Up">
                 <div className="flex flex-col gap-4">
-                    <select
-                        value={settlePayee}
-                        onChange={(e) => setSettlePayee(e.target.value)}
-                        className={inputCls}
-                        style={{ ...inputStyle, paddingRight: 16 }}
-                    >
-                        <option value="" disabled>Who are you paying?</option>
-                        {members.filter(m => m.id !== user?.id).map((m) => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
-                        ))}
-                    </select>
-                    <input
-                        type="number"
-                        step="0.01"
-                        placeholder="Amount"
-                        value={settleAmount}
-                        onChange={(e) => setSettleAmount(e.target.value)}
-                        className={inputCls}
-                        style={inputStyle}
-                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,255,136,0.1)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle)'; e.target.style.boxShadow = 'none'; }}
-                    />
+                    <div>
+                        <p className="label mb-2">Who are you paying?</p>
+                        <select
+                            value={settlePayee}
+                            onChange={(e) => setSettlePayee(e.target.value)}
+                            className="input"
+                            style={{ paddingRight: 16 }}
+                        >
+                            <option value="" disabled>Select member</option>
+                            {members.filter(m => m.id !== user?.id).map((m) => (
+                                <option key={m.id} value={m.id}>{m.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <p className="label mb-2">Amount</p>
+                        <input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={settleAmount}
+                            onChange={(e) => setSettleAmount(e.target.value)}
+                            className="input"
+                        />
+                    </div>
                     {settleError && <p className="text-sm" style={{ color: 'var(--accent-coral)' }}>{settleError}</p>}
                     <button
                         onClick={handleSettleUp}
                         disabled={settleSubmitting}
-                        className="w-full h-12 flex items-center justify-center cursor-pointer hover:scale-[1.02] transition-transform disabled:opacity-50"
-                        style={btnPrimary}
+                        className="btn-primary w-full"
+                        style={{ height: 48 }}
                     >
                         {settleSubmitting ? <LoadingSpinner size="sm" /> : 'Record Payment'}
                     </button>
                 </div>
             </Modal>
 
-            {/* Toast */}
+            {/* ══════ Toast ══════ */}
             {toast && (
-                <div
-                    className="fixed bottom-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-[Syne] font-bold shadow-xl toast-enter"
-                    style={{
-                        backgroundColor: toast.type === 'error' ? 'var(--accent-coral)' : 'var(--accent-green)',
-                        color: '#0a0f0d',
-                    }}
-                >
+                <div className={`toast ${toast.type === 'error' ? 'toast-error' : 'toast-success'}`}>
                     {toast.msg}
                 </div>
             )}

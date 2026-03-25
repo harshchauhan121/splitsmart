@@ -2,7 +2,7 @@ import Avatar from './Avatar';
 
 function fmtDate(d) {
     if (!d) return '';
-    return new Date(d).toLocaleDateString();
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function fmtCurrency(n) {
@@ -23,28 +23,37 @@ export default function ExpenseItem({ expense, currentUserId, onDelete, onEdit }
             onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
         >
             <Avatar name={expense.paid_by_name || ''} size="md" />
+
+            {/* Left: Description + metadata */}
             <div className="flex-1 min-w-0">
-                <p className="text-white truncate" style={{ fontWeight: 600, fontSize: 15 }}>
+                <p className="text-white font-bold truncate" style={{ fontSize: 15 }}>
                     {expense.description}
                 </p>
-                <p className="mt-0.5" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                    Paid by {expense.paid_by_name} · {fmtDate(expense.date)}
+                <p className="mt-1 flex items-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                    <span>Paid by <strong className="text-white font-medium">{expense.paid_by_name}</strong></span>
+                    <span>·</span>
+                    <span>{fmtDate(expense.date)}</span>
                 </p>
             </div>
+
+            {/* Right: Amount + split info */}
             <div className="text-right shrink-0">
-                <p className="font-[Syne] font-bold text-white" style={{ fontSize: 16 }}>
+                <p className="font-heading font-bold" style={{ fontSize: 18, color: 'var(--accent-green)' }}>
                     {fmtCurrency(expense.amount)}
                 </p>
-                <p className="mt-0.5" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                <p className="mt-0.5 label">
                     {expense.split_count} {expense.split_count === 1 ? 'person' : 'people'}
                 </p>
             </div>
+
+            {/* Actions: hover-reveal, right side */}
             {isOwner && (
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 flex gap-1">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1 ml-1">
                     {onEdit && (
                         <button
                             onClick={() => onEdit(expense)}
-                            className="text-[var(--text-muted)] hover:text-white cursor-pointer text-lg p-1 transition-colors"
+                            className="hover:text-white cursor-pointer text-base p-1 transition-colors rounded-lg"
+                            style={{ color: 'var(--text-muted)' }}
                             title="Edit expense"
                         >
                             ✏️
@@ -53,10 +62,11 @@ export default function ExpenseItem({ expense, currentUserId, onDelete, onEdit }
                     {onDelete && (
                         <button
                             onClick={() => onDelete(expense.id)}
-                            className="text-[var(--text-muted)] hover:text-[var(--accent-coral)] cursor-pointer text-lg p-1 transition-colors"
+                            className="hover:text-[var(--accent-coral)] cursor-pointer text-base p-1 transition-colors rounded-lg"
+                            style={{ color: 'var(--text-muted)' }}
                             title="Delete expense"
                         >
-                            🗑
+                            🗑️
                         </button>
                     )}
                 </div>
