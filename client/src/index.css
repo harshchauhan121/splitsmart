@@ -1,3 +1,67 @@
+:root {
+    --bg-base: #0a0f0d;
+    --bg-surface: #111a15;
+    --bg-card: #141f18;
+    --bg-input: #1a2b20;
+    --bg-input-light: #f0f7f2;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-card: rgba(255, 255, 255, 0.07);
+    --accent-green: #00ff88;
+    --accent-coral: #ff6b6b;
+    --text-primary: #ffffff;
+    --text-muted: #7a9485;
+    --text-dim: #4a6355;
+    --shadow-green: 0 0 20px rgba(0, 255, 136, 0.25);
+    --shadow-green-strong: 0 0 30px rgba(0, 255, 136, 0.45);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page-enter {
+    animation: pageEnter 300ms ease forwards;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

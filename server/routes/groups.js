@@ -107,7 +107,7 @@ router.get('/:id', (req, res) => {
     try {
         // Check if group exists
         const group = db.prepare(`
-            SELECT id, name, description, created_at
+            SELECT id, name, description, created_by, created_at
             FROM groups
             WHERE id = ?
         `).get(groupId);
@@ -279,6 +279,74 @@ router.get('/:id/balances', (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: false, error: 'Failed to calculate balances' });
+    }
+});
+
+// DELETE /api/groups/:id/leave
+router.delete('/:id/leave', (req, res) => {
+    const groupId = req.params.id;
+
+    try {
+        const group = db.prepare('SELECT id FROM groups WHERE id = ?').get(groupId);
+        if (!group) {
+            return res.status(404).json({ success: false, error: 'Group not found' });
+        }
+
+        const membership = db.prepare(
+            'SELECT id FROM group_members WHERE group_id = ? AND user_id = ?'
+        ).get(groupId, req.user.id);
+
+        if (!membership) {
+            return res.status(403).json({ success: false, error: 'Access denied' });
+        }
+
+        db.prepare('DELETE FROM group_members WHERE group_id = ? AND user_id = ?')
+            .run(groupId, req.user.id);
+
+        return res.json({ success: true, message: 'You have left the group' });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, error: 'Failed to leave group' });
+    }
+});
+
+// DELETE /api/groups/:id
+router.delete('/:id', (req, res) => {
+    const groupId = req.params.id;
+
+    try {
+        const group = db.prepare('SELECT created_by FROM groups WHERE id = ?').get(groupId);
+        if (!group) {
+            return res.status(404).json({ success: false, error: 'Group not found' });
+        }
+
+        if (group.created_by !== req.user.id) {
+            return res.status(403).json({ success: false, error: 'Only the creator can delete the group' });
+        }
+
+        db.transaction(() => {
+            // Delete splits for all expenses in group
+            db.prepare(`
+                DELETE FROM expense_splits 
+                WHERE expense_id IN (SELECT id FROM expenses WHERE group_id = ?)
+            `).run(groupId);
+
+            // Delete expenses
+            db.prepare('DELETE FROM expenses WHERE group_id = ?').run(groupId);
+
+            // Delete members
+            db.prepare('DELETE FROM group_members WHERE group_id = ?').run(groupId);
+
+            // Delete group
+            db.prepare('DELETE FROM groups WHERE id = ?').run(groupId);
+        })();
+
+        return res.json({ success: true, message: 'Group deleted successfully' });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, error: 'Failed to delete group' });
     }
 });
 
